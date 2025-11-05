@@ -1,4 +1,5 @@
-# ha_addons
+# Home Assistant Add-ons
 
-## Installation
-1. Install official maria-db addon
+## List of Add-ons
+### Feijoa Stats Engine
+Personal add on for my company. Unlikely to be any use to any other person.
