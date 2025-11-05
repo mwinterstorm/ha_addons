@@ -21,10 +21,10 @@ CREATE TABLE IF NOT EXISTS `contributions` (
   `contribution` DOUBLE DEFAULT NULL,
   `fee` DOUBLE DEFAULT NULL,
   `tax` DOUBLE DEFAULT NULL,
+  `transaction_count` INT DEFAULT NULL,
   `source_file` VARCHAR(255) DEFAULT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`),
   KEY `idx_contributions_user` (`user_id`),
   CONSTRAINT `fk_contrib_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
