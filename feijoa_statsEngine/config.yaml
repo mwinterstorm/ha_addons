@@ -59,7 +59,7 @@ options:
   mariadb_port: 3306
   mariadb_user: ""
   mariadb_password: ""
-  mariadb_database: feijoa
+  mariadb_database: feijoa_contribution_stats
   timezone: Pacific/Auckland
   log_level: info
 
