@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/with-contenv bash
 set -euo pipefail
 
 : "${S3_BUCKET:?S3_BUCKET is required (export it in the container env)}"
