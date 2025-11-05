@@ -78,7 +78,7 @@ def connect_db():
         "port": int(os.environ.get("DB_PORT","3306")),
         "user": os.environ.get("DB_USER","root"),
         "password": os.environ.get("DB_PASSWORD",""),
-        "database": os.environ.get("DB_NAME","feijoa"),
+        "database": os.environ["DB_NAME"],
         "charset": "utf8mb4", "autocommit": False,
         "cursorclass": pymysql.cursors.Cursor,
     }
