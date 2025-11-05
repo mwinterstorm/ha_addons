@@ -17,7 +17,7 @@
 | `mariadb_port` | MariaDB port. | `3306` |
 | `mariadb_user` | MariaDB user with permissions to the target database. | `""` |
 | `mariadb_password` | Password for `mariadb_user`. | `""` |
-| `mariadb_database` | Target database name. | `feijoa` |
+| `mariadb_database` | Target database name. | `feijoa_contribution_stats` |
 | `timezone` | Timezone for logs and cron scheduling. | `Pacific/Auckland` |
 | `log_level` | Add-on log verbosity (`debug`, `info`, `warning`, `error`). | `info` |
 
