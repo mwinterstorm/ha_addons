@@ -1,0 +1,13 @@
+# macOS cruft
+.DS_Store
+
+# Python caches
+__pycache__/
+*.pyc
+
+# Home Assistant build artefacts
+*.tar.gz
+*.log
+
+# WIP
+feijoa_statsEngine/DOCS.md

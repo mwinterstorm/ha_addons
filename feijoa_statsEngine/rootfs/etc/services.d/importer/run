@@ -1,0 +1,50 @@
+#!/usr/bin/with-contenv bashio
+
+set -euo pipefail
+
+APP_DIR="/usr/local/share/feijoa"
+IMPORT_WRAPPER="${APP_DIR}/import.sh"
+CRON_FILE="/tmp/feijoa-crontab"
+
+bashio::log.level "$(bashio::config 'log_level')"
+
+export AWS_ACCESS_KEY_ID="$(bashio::config 'aws_access_key_id')"
+export AWS_SECRET_ACCESS_KEY="$(bashio::config 'aws_secret_access_key')"
+export AWS_REGION="$(bashio::config 'aws_region')"
+
+export S3_BUCKET="$(bashio::config 's3_bucket')"
+export S3_PREFIX="$(bashio::config 's3_prefix')"
+
+export CHUNK_SIZE="$(bashio::config 'chunk_size')"
+export USERS_CHUNK_SIZE="$(bashio::config 'users_chunk_size')"
+
+export DB_HOST="$(bashio::config 'mariadb_host')"
+export DB_PORT="$(bashio::config 'mariadb_port')"
+export DB_USER="$(bashio::config 'mariadb_user')"
+export DB_PASSWORD="$(bashio::config 'mariadb_password')"
+export DB_NAME="$(bashio::config 'mariadb_database')"
+
+export TZ="$(bashio::config 'timezone')"
+
+if [ ! -x "${IMPORT_WRAPPER}" ]; then
+  bashio::log.error "Expected import wrapper at ${IMPORT_WRAPPER}, but it is missing or not executable."
+  bashio::log.error "Ensure your importer files are present in the image."
+  exit 1
+fi
+
+if bashio::config.true 'use_cron'; then
+  SCHEDULE="$(bashio::config 'schedule')"
+  if bashio::is_empty "${SCHEDULE}"; then
+    bashio::log.error "Cron schedule is empty but use_cron is enabled. Please configure a schedule like '0 * * * *'."
+    exit 1
+  fi
+
+  cat <<EOF > "${CRON_FILE}"
+${SCHEDULE} ${IMPORT_WRAPPER}
+EOF
+  bashio::log.info "Starting supercronic with schedule: ${SCHEDULE}"
+  exec /usr/local/bin/supercronic -quiet "${CRON_FILE}"
+fi
+
+bashio::log.info "Starting single-run import."
+exec "${IMPORT_WRAPPER}"

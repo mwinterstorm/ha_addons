@@ -1,0 +1,69 @@
+name: Feijoa Stats Engine Importer
+version: "0.0.1"
+slug: feijoa_stats_engine
+description: Import Feijoa contributions from S3 into MariaDB for Home Assistant dashboards.
+url: https://github.com/mwinterstorm/ha_addons
+startup: services
+boot: auto
+init: false
+arch:
+  - amd64
+  - aarch64
+  - armv7
+map:
+  - share:rw
+backup: hot
+audio: false
+uart: false
+gpio: false
+i2c: false
+usb: false
+gpio_access: false
+docker_api: false
+homeassistant_api: false
+hassio_api: false
+host_network: false
+ingress: false
+panel_icon: mdi:database-import
+services:
+  - mysql:need
+stage: experimental
+
+options:
+  aws_access_key_id: ""
+  aws_secret_access_key: ""
+  aws_region: ap-southeast-2
+  s3_bucket: ""
+  s3_prefix: new_contributions/
+  chunk_size: 1000
+  users_chunk_size: 1000
+  use_cron: false
+  schedule: "0 3 * * *"
+  mariadb_host: core-mariadb
+  mariadb_port: 3306
+  mariadb_user: ""
+  mariadb_password: ""
+  mariadb_database: feijoa
+  timezone: Pacific/Auckland
+  log_level: info
+
+schema:
+  aws_access_key_id: str
+  aws_secret_access_key: str
+  aws_region: str
+  s3_bucket: str
+  s3_prefix: str
+  chunk_size: int
+  users_chunk_size: int
+  use_cron: bool
+  schedule: str?
+  mariadb_host: str
+  mariadb_port: int
+  mariadb_user: str
+  mariadb_password: str
+  mariadb_database: str
+  timezone: str
+  log_level: list(debug|info|warning|error)
+
+environment:
+  APP_HOME: /usr/local/share/feijoa
