@@ -1,14 +1,16 @@
-#!/usr/bin/with-contenv bashio
-
+#!/usr/bin/env bash
 set -euo pipefail
 
-APP_SCRIPT="${APP_SCRIPT:-/usr/local/share/feijoa/s3_contributions_to_sql.py}"
+: "${S3_BUCKET:?S3_BUCKET is required (export it in the container env)}"
+S3_PREFIX="${S3_PREFIX:-new_contributions/}"
+CHUNK_SIZE="${CHUNK_SIZE:-1000}"
+USERS_CHUNK_SIZE="${USERS_CHUNK_SIZE:-1000}"
 
-if [ ! -f "${APP_SCRIPT}" ]; then
-  bashio::log.error "Importer script not found at ${APP_SCRIPT}."
-  bashio::log.error "Add your implementation to ${APP_SCRIPT} or adjust APP_SCRIPT."
-  exit 1
-fi
+echo "[import.sh] bucket=${S3_BUCKET} prefix=${S3_PREFIX} exec-db chunk=${CHUNK_SIZE} users-chunk=${USERS_CHUNK_SIZE}"
 
-bashio::log.info "Running Feijoa importer against MariaDB host ${DB_HOST}:${DB_PORT}"
-exec python3 "${APP_SCRIPT}"
+exec python3 /app/s3_contributions_to_sql.py \
+  --bucket "${S3_BUCKET}" \
+  --prefix "${S3_PREFIX}" \
+  --exec-db \
+  --chunk-size "${CHUNK_SIZE}" \
+  --users-chunk-size "${USERS_CHUNK_SIZE}"
