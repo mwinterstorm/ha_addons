@@ -8,6 +8,3 @@ __pycache__/
 # Home Assistant build artefacts
 *.tar.gz
 *.log
-
-# WIP
-feijoa_statsEngine/DOCS.md
