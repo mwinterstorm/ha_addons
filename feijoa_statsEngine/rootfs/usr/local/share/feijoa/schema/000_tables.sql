@@ -1,30 +1,30 @@
--- Feijoa Stats Engine base tables.
-
-CREATE TABLE IF NOT EXISTS `users` (
-  `id_row` INT NOT NULL AUTO_INCREMENT,
-  `id` VARCHAR(255) NOT NULL,
-  `full_name` VARCHAR(511) GENERATED ALWAYS AS (CONCAT(`first_name`, ' ', `last_name`)) VIRTUAL,
-  `first_name` TEXT DEFAULT NULL,
-  `last_name` TEXT DEFAULT NULL,
-  `date_joined` DATE DEFAULT NULL,
-  `last_contrib` TIMESTAMP NULL DEFAULT NULL,
-  `users_created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-  `users_modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+CREATE TABLE `users` (
+  `id_row` int(11) NOT NULL AUTO_INCREMENT,
+  `id` varchar(255) NOT NULL,
+  `full_name` varchar(511) GENERATED ALWAYS AS (concat(`first_name`,' ',`last_name`)) VIRTUAL,
+  `first_name` text DEFAULT NULL,
+  `last_name` text DEFAULT NULL,
+  `date_joined` date DEFAULT NULL,
+  `last_contrib` timestamp NULL DEFAULT NULL,
+  `users_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `users_modified` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id_row`),
-  UNIQUE KEY `uniq_user_id` (`id`)
+  UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `contributions` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `timestamp` TIMESTAMP NULL DEFAULT NULL,
-  `user_id` VARCHAR(255) NOT NULL,
-  `contribution` DOUBLE DEFAULT NULL,
-  `fee` DOUBLE DEFAULT NULL,
-  `tax` DOUBLE DEFAULT NULL,
-  `transaction_count` INT DEFAULT NULL,
-  `source_file` VARCHAR(255) DEFAULT NULL,
-  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+CREATE TABLE `contributions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timestamp` timestamp NULL DEFAULT NULL,
+  `user_id` varchar(255) NOT NULL,
+  `contribution` double DEFAULT NULL,
+  `fee` double DEFAULT NULL,
+  `total_with_fee` double GENERATED ALWAYS AS (`contribution` + `fee`) STORED,
+  `fee_percentage` double GENERATED ALWAYS AS (`fee` / nullif(`contribution`,0) * 100) STORED,
+  `transaction_count` int(11) DEFAULT NULL,
+  `contributions_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `contributions_modified` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `contrib_date` date GENERATED ALWAYS AS (cast(`timestamp` as date)) STORED,
   PRIMARY KEY (`id`),
-  KEY `idx_contributions_user` (`user_id`),
-  CONSTRAINT `fk_contrib_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+  KEY `user_id_idx` (`user_id`),
+  UNIQUE KEY `uniq_user_day` (`user_id`,`contrib_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
