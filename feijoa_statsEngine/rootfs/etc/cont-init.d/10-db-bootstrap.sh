@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv bashio
+#!/usr/bin/with-contenv bash
 
 set -euo pipefail
 
@@ -18,6 +18,11 @@ if bashio::config.is_empty 'mariadb_host' \
   || bashio::config.is_empty 'mariadb_database'; then
   bashio::log.warning "Database credentials are incomplete; skipping bootstrap."
   exit 0
+fi
+
+if ! command -v mariadb &> /dev/null; then
+  bashio::log.error "MariaDB client is not installed. Cannot proceed with bootstrap."
+  exit 1
 fi
 
 bashio::log.info "Bootstrap requested. Target host=${db_host}, port=${db_port}, user=${db_user}, database=${db_name}."
