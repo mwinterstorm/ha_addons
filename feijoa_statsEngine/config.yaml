@@ -3,7 +3,7 @@ slug: feijoa_stats_engine
 description: Import Feijoa contributions from S3 into MariaDB for Home Assistant dashboards.
 url: https://github.com/mwinterstorm/ha_addons/feijoa_statsEngine/README.md
 
-version: "0.0.17"
+version: "0.0.25"
 stage: experimental
 
 arch:
@@ -13,7 +13,7 @@ arch:
 
 startup: application
 boot: auto
-init: true
+init: false
 # watchdog: [string] A URL for monitoring the add-on health. Like http://[HOST]:[PORT:2839]/dashboard, the port needs the internal port, which will be replaced with the effective port. It is also possible to bind the protocol part to a configuration option with: [PROTO:option_name]://[HOST]:[PORT:2839]/dashboard and it's looked up if it is true and it's going to https. For simple TCP port monitoring you can use tcp://[HOST]:[PORT:80]. It works for add-ons on the host or internal network.
 
 # webui: [string] A URL for the web interface of this add-on. Like http://[HOST]:[PORT:2839]/dashboard, the port needs the internal port, which will be replaced with the effective port. It is also possible to bind the protocol part to a configuration option with: [PROTO:option_name]://[HOST]:[PORT:2839]/dashboard and it's looked up if it is true and it's going to https.
@@ -21,6 +21,7 @@ init: true
 map:
   - share:rw
   - data:rw
+  - addon_config:rw
 
 backup: hot
 
