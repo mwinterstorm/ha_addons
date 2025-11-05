@@ -8,17 +8,14 @@ ENV \
   PYTHONUNBUFFERED=1 \
   PIP_NO_CACHE_DIR=1
 
-# Install runtime dependencies.
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
+# Install runtime dependencies (Alpine base).
+RUN apk add --no-cache \
     python3 \
-    python3-pip \
-    python3-venv \
+    py3-pip \
+    py3-virtualenv \
     curl \
     ca-certificates \
-    mariadb-client \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+    mariadb-client
 
 # supercronic (arch-aware download)
 ARG SUPERCRONIC_VERSION=v0.2.29
