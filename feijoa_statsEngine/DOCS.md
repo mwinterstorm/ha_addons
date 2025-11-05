@@ -27,30 +27,12 @@
 2. Create a database and user for the importer. Example SQL:
 
    ```sql
-   CREATE DATABASE feijoa CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-   CREATE USER 'feijoa'@'%' IDENTIFIED BY 'superSecret';
-   GRANT ALL PRIVILEGES ON feijoa.* TO 'feijoa'@'%';
+   CREATE DATABASE your_database_name CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   CREATE USER 'your_user_name'@'%' IDENTIFIED BY 'your_secret_password';
+   GRANT ALL PRIVILEGES ON your_database_name.* TO 'your_user_name'@'%'; -- Note: ALL PRIVILEGES is recommended. At a minimum, the user needs SELECT, INSERT, UPDATE, DELETE, and CREATE VIEW permissions.
    FLUSH PRIVILEGES;
    ```
 
 3. Enter the database credentials into the Feijoa add-on options.
 
-### Automatic schema bootstrap
-
-On first start the add-on runs any SQL files found in `/usr/local/share/feijoa/schema/` against the configured database. The scripts execute in lexical order, so prefix filenames (`000_tables.sql`, `010_views.sql`, etc.) to control the sequence. After a successful run a sentinel file is written to `/data/feijoa_schema_bootstrapped`; delete that file if you need to reapply the schema.
-
-The bundled `000_tables.sql` creates the `users` and `contributions` tables. Replace or extend the files in the `schema` directory with your own schema and rebuild the add-on when they change.
-
-### Importer implementation
-
-The image currently includes a placeholder Python script at `/usr/local/share/feijoa/s3_contributions_to_sql.py`. Replace it with your actual importer implementation and update `/usr/local/share/feijoa/requirements.txt` with the required Python dependencies. Rebuild the add-on after making changes.
-
-The importer runs with the following environment variables sourced from the add-on options:
-
-- `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`
-- `S3_BUCKET`, `S3_PREFIX`
-- `CHUNK_SIZE`, `USERS_CHUNK_SIZE`
-- `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`
-- `TZ`
-
-If `use_cron` is enabled, the importer runs on the specified schedule using [supercronic](https://github.com/aptible/supercronic). Otherwise the script executes once at start-up.
+4. db will be initialised on first run. If you need to re initialise, delete the file in the addon_config directory.
