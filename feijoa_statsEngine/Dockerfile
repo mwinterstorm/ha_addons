@@ -36,9 +36,15 @@ RUN set -eo pipefail \
 # Application & service files
 COPY rootfs /
 
-# Install Python dependencies if vendored.
-RUN if [ -f /usr/local/share/feijoa/requirements.txt ]; then \
-      pip3 install --no-cache-dir -r /usr/local/share/feijoa/requirements.txt; \
+# Python virtual environment for app dependencies.
+ENV VIRTUAL_ENV=/opt/feijoa-venv
+ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
+
+RUN python3 -m venv "${VIRTUAL_ENV}"
+
+RUN if [ -f /usr/local/share/feijoa/requirements.txt ] && \
+       [ -s /usr/local/share/feijoa/requirements.txt ]; then \
+      pip install --no-cache-dir -r /usr/local/share/feijoa/requirements.txt; \
     fi
 
 # Ensure service scripts are executable.
