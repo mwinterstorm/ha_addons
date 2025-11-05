@@ -1,5 +1,5 @@
 ARG BUILD_FROM=ghcr.io/home-assistant/amd64-addon-base:latest
-ARG BUILD_ARCH
+ARG BUILD_ARCH=amd64
 
 FROM ${BUILD_FROM}
 
@@ -20,7 +20,7 @@ RUN apk add --no-cache \
 # supercronic (arch-aware download)
 ARG SUPERCRONIC_VERSION=v0.2.29
 RUN set -eo pipefail \
-  && case "${BUILD_ARCH}" in \
+  && case "${BUILD_ARCH:-amd64}" in \
        "amd64") SUPERCRONIC_BIN="supercronic-linux-amd64";; \
        "aarch64") SUPERCRONIC_BIN="supercronic-linux-arm64";; \
        "armhf") SUPERCRONIC_BIN="supercronic-linux-arm";; \
