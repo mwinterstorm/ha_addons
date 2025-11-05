@@ -35,6 +35,12 @@
 
 3. Enter the database credentials into the Feijoa add-on options.
 
+### Automatic schema bootstrap
+
+On first start the add-on runs any SQL files found in `/usr/local/share/feijoa/schema/` against the configured database. The scripts execute in lexical order, so prefix filenames (`000_tables.sql`, `010_views.sql`, etc.) to control the sequence. After a successful run a sentinel file is written to `/data/feijoa_schema_bootstrapped`; delete that file if you need to reapply the schema.
+
+The bundled `000_tables.sql` creates the `users` and `contributions` tables. Replace or extend the files in the `schema` directory with your own schema and rebuild the add-on when they change.
+
 ### Importer implementation
 
 The image currently includes a placeholder Python script at `/usr/local/share/feijoa/s3_contributions_to_sql.py`. Replace it with your actual importer implementation and update `/usr/local/share/feijoa/requirements.txt` with the required Python dependencies. Rebuild the add-on after making changes.

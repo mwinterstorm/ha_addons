@@ -16,6 +16,7 @@ RUN apt-get update \
     python3-venv \
     curl \
     ca-certificates \
+    mariadb-client \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
@@ -45,6 +46,7 @@ RUN if [ -f /usr/local/share/feijoa/requirements.txt ]; then \
 
 # Ensure service scripts are executable.
 RUN chmod +x \
+      /etc/cont-init.d/10-db-bootstrap \
       /etc/services.d/importer/run \
       /usr/local/share/feijoa/import.sh \
       /usr/local/share/feijoa/s3_contributions_to_sql.py
