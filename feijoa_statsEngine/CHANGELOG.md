@@ -1,0 +1,2 @@
+# v0.0.6
+- Added detailed logging to the schema bootstrap script to improve visibility during initial setup. The script now logs connection attempts, schema file discovery, and the status of each import step.
