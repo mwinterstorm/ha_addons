@@ -15,6 +15,7 @@ RUN apk add --no-cache \
     py3-virtualenv \
     curl \
     ca-certificates \
+    jq \
     mariadb-client
 
 # supercronic (arch-aware download)

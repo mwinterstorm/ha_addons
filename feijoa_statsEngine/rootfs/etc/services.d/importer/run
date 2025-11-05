@@ -41,17 +41,26 @@ if bashio::config.true 'use_cron'; then
 
   # Note: supercronic does not pass environment variables from this script by default.
   # We must export them to a file that supercronic can load.
+  # We also redirect stderr to stdout (2>&1) to ensure Python errors are logged.
   cat <<EOF > "${CRON_FILE}"
-${SCHEDULE} ${PYTHON_IMPORTER} --bucket "${S3_BUCKET}" --prefix "${S3_PREFIX}" --exec-db --chunk-size "${CHUNK_SIZE}" --users-chunk-size "${USERS_CHUNK_SIZE}"
+${SCHEDULE} ${PYTHON_IMPORTER} --bucket "${S3_BUCKET}" --prefix "${S3_PREFIX}" --exec-db --chunk-size "${CHUNK_SIZE}" --users-chunk-size "${USERS_CHUNK_SIZE}" 2>&1
 EOF
   bashio::log.info "Starting supercronic with schedule: ${SCHEDULE}"
   exec /usr/local/bin/supercronic -quiet "${CRON_FILE}"
 fi
 
 bashio::log.info "Starting single-run import."
-exec ${PYTHON_IMPORTER} \
+
+# We run the python script and redirect stderr to stdout (2>&1) to ensure
+# any Python tracebacks are captured in the add-on logs.
+# We also capture the exit code to log a clear success or failure message.
+if ${PYTHON_IMPORTER} \
   --bucket "${S3_BUCKET}" \
   --prefix "${S3_PREFIX}" \
   --exec-db \
   --chunk-size "${CHUNK_SIZE}" \
-  --users-chunk-size "${USERS_CHUNK_SIZE}"
+  --users-chunk-size "${USERS_CHUNK_SIZE}" 2>&1; then
+  bashio::log.info "Import script finished successfully."
+else
+  bashio::log.error "Import script failed. See traceback above for details."
+fi
