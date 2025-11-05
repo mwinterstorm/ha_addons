@@ -3,8 +3,7 @@
 set -euo pipefail
 
 APP_DIR="/usr/local/share/feijoa"
-IMPORT_WRAPPER="${APP_DIR}/import.sh"
-CRON_FILE="/tmp/feijoa-crontab"
+PYTHON_IMPORTER="/opt/feijoa-venv/bin/python3 ${APP_DIR}/s3_contributions_to_sql.py"
 
 bashio::log.level "$(bashio::config 'log_level')"
 
@@ -26,25 +25,33 @@ export DB_NAME="$(bashio::config 'mariadb_database')"
 
 export TZ="$(bashio::config 'timezone')"
 
-if [ ! -x "${IMPORT_WRAPPER}" ]; then
-  bashio::log.error "Expected import wrapper at ${IMPORT_WRAPPER}, but it is missing or not executable."
+if [ ! -f "${APP_DIR}/s3_contributions_to_sql.py" ]; then
+  bashio::log.error "Expected python importer at ${APP_DIR}/s3_contributions_to_sql.py, but it is missing."
   bashio::log.error "Ensure your importer files are present in the image."
   exit 1
 fi
 
 if bashio::config.true 'use_cron'; then
+  CRON_FILE="/tmp/feijoa-crontab"
   SCHEDULE="$(bashio::config 'schedule')"
   if bashio::is_empty "${SCHEDULE}"; then
     bashio::log.error "Cron schedule is empty but use_cron is enabled. Please configure a schedule like '0 * * * *'."
     exit 1
   fi
 
+  # Note: supercronic does not pass environment variables from this script by default.
+  # We must export them to a file that supercronic can load.
   cat <<EOF > "${CRON_FILE}"
-${SCHEDULE} ${IMPORT_WRAPPER}
+${SCHEDULE} ${PYTHON_IMPORTER} --bucket "${S3_BUCKET}" --prefix "${S3_PREFIX}" --exec-db --chunk-size "${CHUNK_SIZE}" --users-chunk-size "${USERS_CHUNK_SIZE}"
 EOF
   bashio::log.info "Starting supercronic with schedule: ${SCHEDULE}"
   exec /usr/local/bin/supercronic -quiet "${CRON_FILE}"
 fi
 
 bashio::log.info "Starting single-run import."
-exec "${IMPORT_WRAPPER}"
+exec ${PYTHON_IMPORTER} \
+  --bucket "${S3_BUCKET}" \
+  --prefix "${S3_PREFIX}" \
+  --exec-db \
+  --chunk-size "${CHUNK_SIZE}" \
+  --users-chunk-size "${USERS_CHUNK_SIZE}"
