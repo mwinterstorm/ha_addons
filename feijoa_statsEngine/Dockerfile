@@ -49,7 +49,7 @@ RUN if [ -f /usr/local/share/feijoa/requirements.txt ] && \
 
 # Ensure service scripts are executable.
 RUN chmod +x \
-      /etc/cont-init.d/10-db-bootstrap \
+      /etc/cont-init.d/10-db-bootstrap.sh \
       /etc/services.d/importer/run \
       /usr/local/share/feijoa/import.sh \
       /usr/local/share/feijoa/s3_contributions_to_sql.py
