@@ -3,7 +3,7 @@ slug: feijoa_stats_engine
 description: Import Feijoa contributions from S3 into MariaDB for Home Assistant dashboards.
 url: https://github.com/mwinterstorm/ha_addons/feijoa_statsEngine/README.md
 
-version: "0.0.4"
+version: "0.0.5"
 stage: experimental
 
 arch:

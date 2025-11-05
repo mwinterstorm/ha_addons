@@ -12,7 +12,10 @@ db_user="$(bashio::config 'mariadb_user')"
 db_password="$(bashio::config 'mariadb_password')"
 db_name="$(bashio::config 'mariadb_database')"
 
-if bashio::is_empty "${db_host}" || bashio::is_empty "${db_user}" || bashio::is_empty "${db_password}" || bashio::is_empty "${db_name}"; then
+if bashio::config.is_empty 'mariadb_host' \
+  || bashio::config.is_empty 'mariadb_user' \
+  || bashio::config.is_empty 'mariadb_password' \
+  || bashio::config.is_empty 'mariadb_database'; then
   bashio::log.warning "Database credentials are incomplete; skipping bootstrap."
   exit 0
 fi
