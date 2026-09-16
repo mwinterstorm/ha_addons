@@ -13,7 +13,7 @@ ports_description:
   1337/tcp: Nightscout web interface and uploader API (HTTP)
 options:
   api_secret: ""
-  mongo_host: local-nightscout-mongodb
+  mongo_host: ba5d2509-nightscout-mongodb
   mongo_password: ""
   mongo_uri: ""
   display_units: mmol/L

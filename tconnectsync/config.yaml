@@ -1,0 +1,32 @@
+name: tconnectsync
+version: "3.0.0-1"
+slug: tconnectsync
+description: Sync Tandem Source pump records to Nightscout
+url: https://github.com/jwoglom/tconnectsync
+arch: [amd64, aarch64]
+stage: experimental
+timeout: 30
+backup: cold
+options:
+  tconnect_email: ""
+  tconnect_password: ""
+  tconnect_region: EU
+  nightscout_url: http://ba5d2509-nightscout:1337
+  nightscout_api_secret: ""
+  timezone: Pacific/Auckland
+  pump_serial_number: ""
+  features: [BASAL, BOLUS, PUMP_EVENTS]
+  poll_interval_seconds: 300
+  mode: sync
+schema:
+  tconnect_email: email
+  tconnect_password: password
+  tconnect_region: list(US|EU)
+  nightscout_url: url
+  nightscout_api_secret: password
+  timezone: str
+  pump_serial_number: match(^[0-9]*$)
+  features:
+    - list(BASAL|BOLUS|PUMP_EVENTS|PROFILES|CGM|IOB|PUMP_EVENTS_BASAL_SUSPENSION|CGM_ALERTS|DEVICE_STATUS)
+  poll_interval_seconds: int(300,3600)
+  mode: list(sync|preview|check_login)
