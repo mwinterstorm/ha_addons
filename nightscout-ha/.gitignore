@@ -1,6 +1,0 @@
-__pycache__/
-*.pyc
-.env
-options.json
-*.archive
-*.archive.gz
