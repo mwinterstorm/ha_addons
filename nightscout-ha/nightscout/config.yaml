@@ -1,0 +1,35 @@
+name: Nightscout
+version: "15.0.8-1"
+slug: nightscout
+description: Upstream Nightscout with a separately managed MongoDB database
+arch: [amd64, aarch64]
+url: https://github.com/nightscout/cgm-remote-monitor
+stage: experimental
+timeout: 60
+webui: http://[HOST]:[PORT:1337]
+ports:
+  1337/tcp: 1337
+ports_description:
+  1337/tcp: Nightscout web interface and uploader API (HTTP)
+options:
+  api_secret: ""
+  mongo_host: local-nightscout-mongodb
+  mongo_password: ""
+  mongo_uri: ""
+  display_units: mmol/L
+  auth_default_roles: status-only
+  enable: careportal
+  base_url: ""
+  extra_env: []
+schema:
+  api_secret: password
+  mongo_host: str
+  mongo_password: password
+  mongo_uri: password
+  display_units: list(mg/dl|mmol/L)
+  auth_default_roles: list(status-only|denied|readable)
+  enable: str
+  base_url: str
+  extra_env:
+    - name: match(^[A-Z][A-Z0-9_]*$)
+      value: password

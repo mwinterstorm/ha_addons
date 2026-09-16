@@ -1,0 +1,33 @@
+name: Validate and smoke test
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/*.test.cjs
+      - run: shellcheck mongodb/rootfs/run.sh
+      - uses: frenck/action-addon-linter@v2
+        with:
+          path: ./nightscout
+      - uses: frenck/action-addon-linter@v2
+        with:
+          path: ./mongodb
+  smoke:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tests/smoke.py
+        timeout-minutes: 20

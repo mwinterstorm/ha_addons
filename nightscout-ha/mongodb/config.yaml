@@ -1,0 +1,16 @@
+name: Nightscout MongoDB
+version: "8.0.32-1"
+slug: nightscout_mongodb
+description: Private persistent MongoDB companion for Nightscout
+arch: [amd64, aarch64]
+url: https://hub.docker.com/_/mongo
+startup: services
+stage: experimental
+timeout: 120
+backup: cold
+options:
+  password: ""
+  cache_size_gb: 0.5
+schema:
+  password: password
+  cache_size_gb: float(0.256,16)
