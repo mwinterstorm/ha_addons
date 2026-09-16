@@ -1,7 +1,7 @@
 # tconnectsync for Home Assistant
 
 A Home Assistant OS add-on for [upstream tconnectsync](https://github.com/jwoglom/tconnectsync),
-pinned to **v3.0.0**. It copies records from a Tandem Source account into Nightscout.
+pinned to **v3.0.0**, with the **3.0.0-2** Nightscout date-query compatibility fix. It copies records from a Tandem Source account into Nightscout.
 This is a background service with no web interface and no extra database.
 
 Copy this entire `tconnectsync` folder alongside `nightscout` and `mongodb` in your
@@ -35,3 +35,17 @@ to add pump-derived Nightscout profiles. See [DOCS.md](DOCS.md) before enabling 
 **Experimental:** configuration and dependency checks have been performed, but the
 container and live Tandem-to-Nightscout sync have not been tested. See
 [VALIDATION.md](VALIDATION.md) for the exact verification boundary.
+
+## Updating from 3.0.0-1
+
+Stop tconnectsync. Replace this folder in your existing repository with the entire
+updated folder, including `patches`, Dockerfile and config.yaml. Commit/push, then
+refresh the HA app store and update tconnectsync to **3.0.0-2**. If necessary use
+its Rebuild action after refreshing. Restart Nightscout once if the earlier request
+left it stopped, then start tconnectsync with `mode: sync`.
+
+Do not uninstall either add-on or clear MongoDB. Existing options and cached login
+state should remain. DEVICE_STATUS can be re-enabled after installing this patch;
+leave your other intended feature choices unchanged. Check Logs for completed
+processing and verify new records in Nightscout. Full live sync still needs checking
+on your host; tests reproduce the request bug without using your account.

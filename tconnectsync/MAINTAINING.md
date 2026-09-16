@@ -1,6 +1,6 @@
 # Maintenance
 
-The app builds unmodified upstream v3.0.0 source on a pinned Python 3.11 Debian
+The app builds pinned upstream v3.0.0 source with a narrow date-query patch on a pinned Python 3.11 Debian
 base. This supports native amd64/aarch64 without depending on the single-manifest
 upstream release image. Native dependency wheels are required, so unsupported
 platform/dependency combinations fail the build instead of compiling unexpectedly.
@@ -45,3 +45,23 @@ is needed because the Dockerfile names an explicit multi-platform base.
 
 The upstream software is MIT licensed; its LICENSE.md is retained in the source
 inside the image. This wrapper is MIT licensed as well.
+
+## Nightscout compatibility patch (3.0.0-2)
+
+`patches/apply.py` validates the exact upstream nightscout.py SHA-256, then replaces
+four history lookup methods and the shared date encoder using AST source locations.
+`queries.py` is the reviewable replacement code. Empty successful arrays return
+None after one request. HTTP errors and malformed responses raise; they must not
+be mistaken for missing historical records. The old space-separated date fallback
+is removed. This corrects the malformed date documented in the user's HAOS logs.
+
+To run all regression tests, extract unmodified v3.0.0 source, install the locked
+requirements into a virtual environment, and run:
+
+```sh
+TCONNECT_UPSTREAM=/path/to/extracted-source python3 -m unittest discover -s tests -v
+```
+
+Without TCONNECT_UPSTREAM the five patched-upstream tests are explicitly skipped.
+Tests use mocked HTTP, never the real account. During an upstream upgrade review
+whether the patch is still needed; do not just replace its checksum to force a build.
