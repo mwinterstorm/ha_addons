@@ -1,0 +1,45 @@
+name: Nightscout MCP
+version: "0.1.0"
+slug: nightscout-mcp
+description: Read-only Nightscout tools for ChatGPT with Streamable HTTP and owner OAuth login
+url: https://github.com/mwinterstorm/ha_addons/tree/main/nightscout-mcp
+arch: [amd64, aarch64]
+stage: experimental
+startup: application
+boot: auto
+init: false
+timeout: 30
+ports:
+  8099/tcp: 8099
+ports_description:
+  8099/tcp: MCP and OAuth backend (HTTP; HTTPS proxy required for ChatGPT)
+watchdog: http://[HOST]:[PORT:8099]/health
+options:
+  nightscout_url: http://ba5d2509-nightscout:1337
+  nightscout_token: ""
+  auth_mode: oauth
+  public_url: ""
+  owner_password: ""
+  bearer_token: ""
+  allowed_hosts: []
+  allowed_origins: []
+  extra_redirect_uris: []
+  max_history_hours: 168
+  max_records: 1000
+  stale_after_minutes: 15
+schema:
+  nightscout_url: url
+  nightscout_token: password
+  auth_mode: list(oauth|bearer)
+  public_url: str
+  owner_password: password
+  bearer_token: password
+  allowed_hosts:
+    - str
+  allowed_origins:
+    - url
+  extra_redirect_uris:
+    - url
+  max_history_hours: int(1,744)
+  max_records: int(1,5000)
+  stale_after_minutes: int(5,120)
