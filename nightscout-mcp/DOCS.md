@@ -35,6 +35,34 @@ All routes on that origin must reach port 8099: `/mcp`, `/authorize`, `/approve`
 will break OAuth. Preserve the public Host and Authorization headers. Do not
 add a separate browser-only proxy login in front of the OAuth endpoints.
 
+### Existing Cloudflare Tunnel (simplest when already installed)
+
+Add a dedicated hostname, such as `nightscout-mcp.example.com`, routing the
+entire hostname to `http://YOUR-MCP-ADDON-HOSTNAME:8099`. Set the MCP add-on's
+`public_url` to that HTTPS origin. Use the hostname displayed by Home Assistant;
+local installs typically use `local-nightscout-mcp`.
+
+For a locally managed Cloudflared add-on, append an entry to its existing list:
+
+```yaml
+additional_hosts:
+  - hostname: nightscout-mcp.example.com
+    service: http://YOUR-MCP-ADDON-HOSTNAME:8099
+```
+
+Preserve other entries and `external_hostname`. Restart Cloudflared after saving.
+If it uses `tunnel_token`, routing is remotely managed: add the hostname/service
+in the existing tunnel's Cloudflare dashboard instead. Local `additional_hosts`
+is ignored in that mode. [Cloudflared configuration](https://github.com/homeassistant-apps/app-cloudflared/blob/main/cloudflared/DOCS.md).
+
+Keep the add-on's OAuth enabled. The dedicated hostname must allow non-browser
+MCP/OAuth requests without an extra interactive Cloudflare Access login or bot
+challenge. Do not alter access policies for other services. Use the internal
+add-on hostname to avoid exposing a LAN port; optionally clear port 8099's host
+mapping in the MCP add-on's Network settings.
+
+### Tailscale alternatives
+
 **Tailscale:** private Serve addresses are reachable only within your tailnet.
 ChatGPT's cloud connection needs public HTTPS or OpenAI's Secure MCP Tunnel.
 Funnel supplies public HTTPS, but the add-on's OAuth protects the data; anyone

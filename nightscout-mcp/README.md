@@ -5,7 +5,7 @@ Nightscout and MongoDB in Home Assistant OS. No writes, dosing tools or pump con
 
 Includes its own single-owner OAuth login; no Auth0 account is needed.
 
-**Experimental:** local protocol/security tests pass. Container build, Home
+**Experimental:** local protocol/security tests pass. The amd64 container build/smoke test also passes in GitHub Actions. Home
 Assistant installation, live Nightscout data and ChatGPT linking still need testing.
 
 See [installation and ChatGPT setup](DOCS.md), [security details](SECURITY.md), and

@@ -181,3 +181,30 @@ test('OAuth rejects missing consent, wrong owner secret, CSRF, foreign client co
   await assert.rejects(oauth.challengeForAuthorizationCode({ client_id: 'other' }, 'missing'));
   await assert.rejects(oauth.verifyAccessToken('missing'));
 });
+
+test('expired access, code and refresh tokens fail closed; cross-client grants and scope escalation fail', async () => {
+  const oauth = new OwnerOAuth(oauthConfig());
+  const client = { client_id: 'owner-client' };
+  const tokens = oauth.issue(client.client_id, 'family');
+  await assert.rejects(oauth.exchangeRefreshToken({ client_id: 'other' }, tokens.refresh_token));
+  await assert.rejects(oauth.exchangeRefreshToken(client, tokens.refresh_token, ['nightscout:write']));
+  await assert.rejects(oauth.exchangeRefreshToken(client, tokens.refresh_token, undefined, new URL('https://wrong.test')));
+  for (const record of oauth.access.values()) record.expires = Date.now() - 1;
+  await assert.rejects(oauth.verifyAccessToken(tokens.access_token));
+  for (const record of oauth.refresh.values()) record.expires = Date.now() - 1;
+  await assert.rejects(oauth.exchangeRefreshToken(client, tokens.refresh_token));
+  const hash = value => createHash('sha256').update(value).digest('hex');
+  oauth.codes.set(hash('test-code'), { clientId: client.client_id, expires: Date.now() + 60000, params: { codeChallenge: 'challenge' } });
+  await assert.rejects(oauth.challengeForAuthorizationCode({ client_id: 'other' }, 'test-code'));
+  oauth.codes.get(hash('test-code')).expires = Date.now() - 1;
+  await assert.rejects(oauth.challengeForAuthorizationCode(client, 'test-code'));
+});
+
+test('oversized upstream and request bodies are rejected without returning their contents', async t => {
+  const ns = new Nightscout(validateConfig(base), async () => response([{ notes: 'x'.repeat(4 * 1024 * 1024) }]));
+  await assert.rejects(ns.get('treatments.json'), /too large/);
+  const { url } = await running(t, validateConfig(base));
+  const oversized = await request(url, '/mcp', { value: 'x'.repeat(33 * 1024) }, { Authorization: `Bearer ${bearer}` });
+  assert.equal(oversized.status, 413);
+  assert.deepEqual(await oversized.json(), { error: 'Invalid request' });
+});
