@@ -1,0 +1,53 @@
+name: Nightscout MCP validation
+on:
+  pull_request:
+    paths:
+      - 'nightscout-mcp/**'
+      - '.github/workflows/nightscout-mcp.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'nightscout-mcp/**'
+      - '.github/workflows/nightscout-mcp.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: nightscout-mcp/package-lock.json
+      - run: npm ci --ignore-scripts && npm test && npm audit --omit=dev
+        working-directory: nightscout-mcp
+      - name: Build amd64 add-on container
+        run: docker build -t nightscout-mcp:test nightscout-mcp
+      - name: Smoke test container without network access
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ns-mcp-smoke
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          Path('/tmp/ns-mcp-smoke/options.json').write_text(json.dumps({
+              'nightscout_url': 'http://unreachable.invalid:1337',
+              'nightscout_token': 'synthetic-read-token',
+              'auth_mode': 'bearer',
+              'bearer_token': 'synthetic-test-only-token-0000000000000000',
+              'allowed_hosts': ['127.0.0.1:8099']
+          }))
+          PY
+          docker run -d --name ns-mcp --network none --read-only --tmpfs /tmp -v /tmp/ns-mcp-smoke:/data nightscout-mcp:test
+          trap 'docker rm -f ns-mcp >/dev/null' EXIT
+          for attempt in $(seq 1 20); do
+            if docker exec ns-mcp node -e "fetch('http://127.0.0.1:8099/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"; then break; fi
+            sleep 1
+          done
+          docker exec ns-mcp node --input-type=module -e "const health=await fetch('http://127.0.0.1:8099/health'); const denied=await fetch('http://127.0.0.1:8099/mcp'); if(health.status!==200 || denied.status!==401) process.exit(1); console.log('Container health and unauthenticated rejection verified')"

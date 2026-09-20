@@ -38,3 +38,12 @@ Both Nightscout add-ons are currently experimental; validation on Home Assistant
 ### Feijoa Stats Engine
 
 A personal add-on for my company, Feijoa. Built for our internal systems and unlikely to be useful to anyone else.
+
+### Nightscout MCP
+
+Read-only Nightscout tools for ChatGPT, with Streamable HTTP and a built-in
+single-owner OAuth login. Runs separately from Nightscout and MongoDB.
+No treatment writes, dosing actions or pump controls. Experimental pending live
+Home Assistant and ChatGPT validation.
+
+[Install and connect ChatGPT](nightscout-mcp/DOCS.md)

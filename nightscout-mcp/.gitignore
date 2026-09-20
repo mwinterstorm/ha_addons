@@ -1,0 +1,4 @@
+node_modules/
+options*.json
+.local-data/
+*.log
