@@ -1,3 +1,7 @@
+# 0.1.7
+
+Refactor response headers setup and improve origin validation logic
+
 # 0.1.6
 
 Add diagnostic logging for OAuth approval decision and successful redirect

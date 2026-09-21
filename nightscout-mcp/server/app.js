@@ -19,42 +19,48 @@ export function createApp(config, { dataDir, fetcher } = {}) {
   app.disable('x-powered-by');
   app.set('trust proxy', false);
   app.use((_req, res, next) => {
-    res.set({ 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer', 'X-Frame-Options': 'DENY', 'Content-Security-Policy': "default-src 'none'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'" });
+    res.set({
+      'Cache-Control': 'no-store',
+      'X-Content-Type-Options': 'nosniff',
+      'Referrer-Policy': 'no-referrer',
+      'X-Frame-Options': 'DENY',
+      'Content-Security-Policy': "default-src 'none'; form-action 'self' https://chatgpt.com; frame-ancestors 'none'; base-uri 'none'"
+    });
     next();
   });
   // Health reveals no configuration, connection state, or patient data.
   app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
-app.use((req, res, next) => {
-  if (!config.allowed_hosts.includes(req.headers.host)) {
-    return res.status(403).json({ error: 'Host not allowed' });
-  }
+  app.use((req, res, next) => {
+    if (!config.allowed_hosts.includes(req.headers.host)) {
+      return res.status(403).json({ error: 'Host not allowed' });
+    }
 
-  // OAuth authorization is a top-level browser navigation. Its Origin is not
-  // an authentication boundary; the OAuth provider validates the registered
-  // redirect URI, client, PKCE challenge, scope, resource, and state instead.
-  const isOAuthBrowserFlow =
-    (req.path === '/authorize' && req.method === 'GET') ||
-    (req.path === '/approve' && req.method === 'POST');
+    // OAuth authorization is a top-level browser navigation. Its Origin is not
+    // an authentication boundary; the OAuth provider validates the registered
+    // redirect URI, client, PKCE challenge, scope, resource, and state instead.
+    const isOAuthBrowserFlow =
+      (req.path === '/authorize' && req.method === 'GET') ||
+      (req.path === '/approve' && req.method === 'POST');
 
-  if (isOAuthBrowserFlow) {
-    return next();
-  }
+    if (isOAuthBrowserFlow) {
+      return next();
+    }
 
-  const origin = req.headers.origin;
-if (
-  origin &&
-  origin !== config.public_url &&
-  !config.allowed_origins.includes(origin)
-) {
-  console.warn(
-    `Rejected origin: method=${req.method} path=${req.path} origin=${origin}`
-  );
-  return res.status(403).json({ error: 'Origin not allowed' });
-}
+    const origin = req.headers.origin;
+    if (
+      origin &&
+      origin !== config.public_url &&
+      !config.allowed_origins.includes(origin)
+    ) {
+      console.warn(
+        `Rejected origin: method=${req.method} path=${req.path} origin=${origin}`
+      );
+      return res.status(403).json({ error: 'Origin not allowed' });
+    }
 
-  next();
-});
+    next();
+  });
 
 
   app.use(budget(600, 60000));
@@ -89,7 +95,7 @@ if (
   app.post('/mcp', async (req, res) => {
     const server = createMcp(config, ns);
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
-    res.on('close', () => { void transport.close().catch(() => {}); void server.close().catch(() => {}); });
+    res.on('close', () => { void transport.close().catch(() => { }); void server.close().catch(() => { }); });
     try { await server.connect(transport); await transport.handleRequest(req, res, req.body); }
     catch { if (!res.headersSent) res.status(500).json({ error: 'MCP request failed' }); }
   });
