@@ -1,3 +1,7 @@
+# 0.1.2
+
+Add loggin for Oauth
+
 # 0.1.1
 
 Fixed Oauth blocking /authorize

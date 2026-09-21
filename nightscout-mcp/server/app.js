@@ -38,13 +38,16 @@ app.use((req, res, next) => {
   }
 
   const origin = req.headers.origin;
-  if (
-    origin &&
-    origin !== config.public_url &&
-    !config.allowed_origins.includes(origin)
-  ) {
-    return res.status(403).json({ error: 'Origin not allowed' });
-  }
+if (
+  origin &&
+  origin !== config.public_url &&
+  !config.allowed_origins.includes(origin)
+) {
+  console.warn(
+    `Rejected origin: method=${req.method} path=${req.path} origin=${origin}`
+  );
+  return res.status(403).json({ error: 'Origin not allowed' });
+}
 
   next();
 });
