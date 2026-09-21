@@ -45,7 +45,11 @@ test('MCP handshake, all eight read-only tools, upstream GET-only, filtering and
   const now = Date.now();
   const fixtures = {
     'entries/sgv.json': [{ sgv: 108, date: now - 300000, direction: 'Flat' }],
-    'treatments.json': [{ created_at: new Date(now).toISOString(), carbs: 12, notes: 'private note' }, { created_at: new Date(now).toISOString(), eventType: 'Temp Basal', absolute: 0.5 }],
+    'treatments.json': [
+      { created_at: new Date(now).toISOString(), eventType: 'Note', carbs: null, insulin: null, notes: 'FOODLOG | description:... | meal:Lunch | alcohol:None', protein: 28, fat: 12, enteredBy: 'Foodlog' },
+      { created_at: new Date(now).toISOString(), eventType: 'Meal Bolus', carbs: 12, notes: 'FOODLOG | description:fruit | meal:Lunch | alcohol:None' },
+      { created_at: new Date(now).toISOString(), eventType: 'Temp Basal', absolute: 0.5 },
+    ],
     'devicestatus.json': [{ created_at: new Date(now).toISOString(), pump: { reservoir: 100, serial: 'private' }, loop: { iob: 1.2, recommendedBolus: 42 }, openaps: { suggested: { insulinReq: 42 } } }],
     'profile.json': [{ defaultProfile: 'Default', secret: 'private', store: { Default: { units: 'mmol', basal: [{ value: 0.5, time: '00:00' }] } } }],
     'status.json': { status: 'ok', version: '15.0.8', settings: { units: 'mmol', api_secret: 'private' } },
@@ -69,6 +73,17 @@ test('MCP handshake, all eight read-only tools, upstream GET-only, filtering and
     assert.equal(init.headers['api-secret'], base.nightscout_token);
     assert.equal(u.searchParams.has('token'), false); assert.equal(init.headers.Authorization, undefined);
   }
+  const treatments = await client.callTool({ name: 'get_treatments', arguments: {} });
+  assert.deepEqual(treatments.structuredContent.records[0], {
+    created_at: fixtures['treatments.json'][0].created_at,
+    eventType: 'Note', carbs: null, insulin: null,
+    notes: 'FOODLOG | description:... | meal:Lunch | alcohol:None', protein: 28, fat: 12, enteredBy: 'Foodlog',
+  });
+  const carbs = await client.callTool({ name: 'get_carbs_history', arguments: {} });
+  assert.deepEqual(carbs.structuredContent.records, [{
+    created_at: fixtures['treatments.json'][1].created_at,
+    eventType: 'Meal Bolus', carbs: 12, notes: 'FOODLOG | description:fruit | meal:Lunch | alcohol:None',
+  }]);
   const before = seen.length;
   assert.equal((await client.callTool({ name: 'get_glucose_history', arguments: { limit: 100000 } })).isError, true);
   assert.equal((await client.callTool({ name: 'get_glucose_history', arguments: { start: '2020-01-01T00:00:00Z', end: '2026-01-01T00:00:00Z' } })).isError, true);
@@ -144,7 +159,8 @@ test('OAuth discovery, DCR, owner consent, PKCE, resource binding, refresh rotat
   assert.ok(new OwnerOAuth(config, dir).clientsStore.getClient(client.client_id));
   const flow = await consent(url, client); assert.equal(flow.auth.status, 200);
   assert.match(flow.auth.headers.get('set-cookie'), /Secure/); assert.match(flow.auth.headers.get('set-cookie'), /HttpOnly/);
-  const approval = await approve(url, flow); assert.equal(approval.status, 303);
+  assert.match(flow.auth.headers.get('content-security-policy'), /form-action 'self' https:\/\/chatgpt\.com/);
+  const approval = await approve(url, flow, { headers: { Origin: 'null' } }); assert.equal(approval.status, 303);
   const location = new URL(approval.headers.get('location'));
   assert.equal(location.searchParams.get('state'), 'test-state');
   const code = location.searchParams.get('code');
@@ -169,11 +185,24 @@ test('OAuth discovery, DCR, owner consent, PKCE, resource binding, refresh rotat
   await assert.rejects(oauth.verifyAccessToken(secondTokens.access_token));
 });
 
-test('OAuth rejects missing consent, wrong owner secret, CSRF, foreign client codes and expanded scopes', async t => {
+test('OAuth browser flow allows GET /authorize and Origin null approval only with its matching secure pending login', async t => {
+  const { url, oauth } = await running(t, oauthConfig());
+  const client = await (await register(url)).json();
+  const first = await consent(url, client); assert.equal(first.auth.status, 200);
+  assert.equal((await approve(url, first, { headers: { Origin: 'null', Cookie: '' } })).status, 400);
+  assert.equal((await approve(url, first, { headers: { Origin: 'null' } })).status, 303);
+  const second = await consent(url, client), third = await consent(url, client);
+  assert.equal((await approve(url, second, { headers: { Origin: 'null', Cookie: third.cookie } })).status, 400);
+  assert.equal((await approve(url, second, { headers: { Origin: 'null' } })).status, 303);
+  assert.equal((await approve(url, third, { headers: { Origin: 'null' }, body: { request_id: 'missing' } })).status, 400);
+  assert.equal((await approve(url, third, { headers: { Origin: 'null' } })).status, 303);
+  await assert.rejects(oauth.verifyAccessToken('missing'));
+});
+
+test('OAuth rejects wrong owner secret, CSRF, foreign client codes and expanded scopes', async t => {
   const { url, oauth } = await running(t, oauthConfig());
   const client = await (await register(url)).json();
   const flow = await consent(url, client);
-  assert.equal((await approve(url, flow, { headers: { Cookie: 'invalid' } })).status, 400);
   assert.equal((await approve(url, flow, { body: { password: 'wrong' } })).status, 403);
   assert.equal((await approve(url, flow)).status, 400);
   const scope = await consent(url, client, { scope: 'nightscout:write' }); assert.equal(scope.auth.status, 302);

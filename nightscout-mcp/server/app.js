@@ -53,9 +53,6 @@ export function createApp(config, { dataDir, fetcher } = {}) {
       origin !== config.public_url &&
       !config.allowed_origins.includes(origin)
     ) {
-      console.warn(
-        `Rejected origin: method=${req.method} path=${req.path} origin=${origin}`
-      );
       return res.status(403).json({ error: 'Origin not allowed' });
     }
 

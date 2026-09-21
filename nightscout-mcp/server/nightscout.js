@@ -58,7 +58,7 @@ export function glucose(row, config, now = Date.now()) {
     valid,
   };
 }
-export const treatment = row => pick(row, ['_id', 'created_at', 'timestamp', 'eventType', 'carbs', 'insulin', 'duration', 'absolute', 'percent', 'rate', 'glucose', 'glucoseType', 'units']);
+export const treatment = row => pick(row, ['_id', 'created_at', 'timestamp', 'eventType', 'carbs', 'insulin', 'protein', 'fat', 'notes', 'enteredBy', 'duration', 'absolute', 'percent', 'rate', 'glucose', 'glucoseType', 'units']);
 export function deviceStatus(row) {
   const out = pick(row, ['_id', 'created_at', 'date']);
   if (row.uploader) out.uploader = pick(row.uploader, ['battery', 'batteryVoltage']);
