@@ -33,7 +33,11 @@ app.use((req, res, next) => {
   // OAuth authorization is a top-level browser navigation. Its Origin is not
   // an authentication boundary; the OAuth provider validates the registered
   // redirect URI, client, PKCE challenge, scope, resource, and state instead.
-  if (req.path === '/authorize' && req.method === 'GET') {
+  const isOAuthBrowserFlow =
+    (req.path === '/authorize' && req.method === 'GET') ||
+    (req.path === '/approve' && req.method === 'POST');
+
+  if (isOAuthBrowserFlow) {
     return next();
   }
 
