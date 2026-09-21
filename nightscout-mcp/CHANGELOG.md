@@ -1,3 +1,8 @@
+# 0.1.8
+
+Remove temporary OAuth diagnostics while retaining the working browser OAuth
+flow and its security boundaries.
+
 # 0.1.7
 
 Refactor response headers setup and improve origin validation logic

@@ -1,5 +1,5 @@
 name: Nightscout MCP
-version: "0.1.7"
+version: "0.1.8"
 slug: nightscout-mcp
 description: Read-only Nightscout tools for ChatGPT with Streamable HTTP and owner OAuth login
 url: https://github.com/mwinterstorm/ha_addons/tree/main/nightscout-mcp

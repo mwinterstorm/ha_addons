@@ -144,7 +144,8 @@ test('OAuth discovery, DCR, owner consent, PKCE, resource binding, refresh rotat
   assert.ok(new OwnerOAuth(config, dir).clientsStore.getClient(client.client_id));
   const flow = await consent(url, client); assert.equal(flow.auth.status, 200);
   assert.match(flow.auth.headers.get('set-cookie'), /Secure/); assert.match(flow.auth.headers.get('set-cookie'), /HttpOnly/);
-  const approval = await approve(url, flow); assert.equal(approval.status, 303);
+  assert.match(flow.auth.headers.get('content-security-policy'), /form-action 'self' https:\/\/chatgpt\.com/);
+  const approval = await approve(url, flow, { headers: { Origin: 'null' } }); assert.equal(approval.status, 303);
   const location = new URL(approval.headers.get('location'));
   assert.equal(location.searchParams.get('state'), 'test-state');
   const code = location.searchParams.get('code');
@@ -169,11 +170,24 @@ test('OAuth discovery, DCR, owner consent, PKCE, resource binding, refresh rotat
   await assert.rejects(oauth.verifyAccessToken(secondTokens.access_token));
 });
 
-test('OAuth rejects missing consent, wrong owner secret, CSRF, foreign client codes and expanded scopes', async t => {
+test('OAuth browser flow allows GET /authorize and Origin null approval only with its matching secure pending login', async t => {
+  const { url, oauth } = await running(t, oauthConfig());
+  const client = await (await register(url)).json();
+  const first = await consent(url, client); assert.equal(first.auth.status, 200);
+  assert.equal((await approve(url, first, { headers: { Origin: 'null', Cookie: '' } })).status, 400);
+  assert.equal((await approve(url, first, { headers: { Origin: 'null' } })).status, 303);
+  const second = await consent(url, client), third = await consent(url, client);
+  assert.equal((await approve(url, second, { headers: { Origin: 'null', Cookie: third.cookie } })).status, 400);
+  assert.equal((await approve(url, second, { headers: { Origin: 'null' } })).status, 303);
+  assert.equal((await approve(url, third, { headers: { Origin: 'null' }, body: { request_id: 'missing' } })).status, 400);
+  assert.equal((await approve(url, third, { headers: { Origin: 'null' } })).status, 303);
+  await assert.rejects(oauth.verifyAccessToken('missing'));
+});
+
+test('OAuth rejects wrong owner secret, CSRF, foreign client codes and expanded scopes', async t => {
   const { url, oauth } = await running(t, oauthConfig());
   const client = await (await register(url)).json();
   const flow = await consent(url, client);
-  assert.equal((await approve(url, flow, { headers: { Cookie: 'invalid' } })).status, 400);
   assert.equal((await approve(url, flow, { body: { password: 'wrong' } })).status, 403);
   assert.equal((await approve(url, flow)).status, 400);
   const scope = await consent(url, client, { scope: 'nightscout:write' }); assert.equal(scope.auth.status, 302);
