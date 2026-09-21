@@ -1,3 +1,7 @@
+# 0.1.4
+
+Simplify OAuth login validation
+
 # 0.1.3
 
 More OAuth tweaking
