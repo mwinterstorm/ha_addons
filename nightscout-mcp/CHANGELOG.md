@@ -1,3 +1,7 @@
+# 0.1.1
+
+Fixed Oauth blocking /authorize
+
 # 0.1.0
 
 Initial experimental read-only Nightscout MCP add-on. Includes Streamable HTTP,
