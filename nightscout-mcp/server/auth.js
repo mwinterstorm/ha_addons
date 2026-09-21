@@ -73,6 +73,11 @@ export class OwnerOAuth {
     const id = req.body?.request_id;
     const pending = this.pending.get(id);
     const cookie = req.headers.cookie?.split(';').map(x => x.trim()).find(x => x.startsWith('__Host-ns_mcp_login='))?.split('=')[1];
+    console.warn(
+      `OAuth approve diagnostic: pending=${Boolean(pending)} cookie=${Boolean(cookie)} cookieMatch=${
+        Boolean(pending && cookie && key(cookie) === pending.cookieHash)
+      } origin=${req.headers.origin}`
+    );
     if (!pending || !cookie || key(cookie) !== pending.cookieHash)
       return res.status(400).send('Login expired or invalid. Restart the connection in ChatGPT.');
     this.pending.delete(id); // one attempt per consent form

@@ -1,3 +1,7 @@
+# 0.1.5
+
+Add diagnostic logging for OAuth approval process
+
 # 0.1.4
 
 Simplify OAuth login validation
