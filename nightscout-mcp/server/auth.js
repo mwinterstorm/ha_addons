@@ -76,7 +76,7 @@ export class OwnerOAuth {
     console.warn(
       `OAuth approve diagnostic: pending=${Boolean(pending)} cookie=${Boolean(cookie)} cookieMatch=${
         Boolean(pending && cookie && key(cookie) === pending.cookieHash)
-      } origin=${req.headers.origin}`
+      } origin=${req.headers.origin} decision=${req.body?.decision} ua=${req.headers['user-agent']}`
     );
     if (!pending || !cookie || key(cookie) !== pending.cookieHash)
       return res.status(400).send('Login expired or invalid. Restart the connection in ChatGPT.');
@@ -92,6 +92,9 @@ export class OwnerOAuth {
     const code = random();
     this.codes.set(key(code), { ...pending, expires: Date.now() + 60000 });
     redirect.searchParams.set('code', code);
+    console.warn(
+      `OAuth approval successful; redirecting to ${redirect.origin}${redirect.pathname}`
+    );
     return res.redirect(303, redirect.href);
   }
   codeFor(client, code) {

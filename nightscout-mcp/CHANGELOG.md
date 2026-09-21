@@ -1,3 +1,7 @@
+# 0.1.6
+
+Add diagnostic logging for OAuth approval decision and successful redirect
+
 # 0.1.5
 
 Add diagnostic logging for OAuth approval process
