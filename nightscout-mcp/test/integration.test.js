@@ -45,7 +45,11 @@ test('MCP handshake, all eight read-only tools, upstream GET-only, filtering and
   const now = Date.now();
   const fixtures = {
     'entries/sgv.json': [{ sgv: 108, date: now - 300000, direction: 'Flat' }],
-    'treatments.json': [{ created_at: new Date(now).toISOString(), carbs: 12, notes: 'private note' }, { created_at: new Date(now).toISOString(), eventType: 'Temp Basal', absolute: 0.5 }],
+    'treatments.json': [
+      { created_at: new Date(now).toISOString(), eventType: 'Note', carbs: null, insulin: null, notes: 'FOODLOG | description:... | meal:Lunch | alcohol:None', protein: 28, fat: 12, enteredBy: 'Foodlog' },
+      { created_at: new Date(now).toISOString(), eventType: 'Meal Bolus', carbs: 12, notes: 'FOODLOG | description:fruit | meal:Lunch | alcohol:None' },
+      { created_at: new Date(now).toISOString(), eventType: 'Temp Basal', absolute: 0.5 },
+    ],
     'devicestatus.json': [{ created_at: new Date(now).toISOString(), pump: { reservoir: 100, serial: 'private' }, loop: { iob: 1.2, recommendedBolus: 42 }, openaps: { suggested: { insulinReq: 42 } } }],
     'profile.json': [{ defaultProfile: 'Default', secret: 'private', store: { Default: { units: 'mmol', basal: [{ value: 0.5, time: '00:00' }] } } }],
     'status.json': { status: 'ok', version: '15.0.8', settings: { units: 'mmol', api_secret: 'private' } },
@@ -69,6 +73,17 @@ test('MCP handshake, all eight read-only tools, upstream GET-only, filtering and
     assert.equal(init.headers['api-secret'], base.nightscout_token);
     assert.equal(u.searchParams.has('token'), false); assert.equal(init.headers.Authorization, undefined);
   }
+  const treatments = await client.callTool({ name: 'get_treatments', arguments: {} });
+  assert.deepEqual(treatments.structuredContent.records[0], {
+    created_at: fixtures['treatments.json'][0].created_at,
+    eventType: 'Note', carbs: null, insulin: null,
+    notes: 'FOODLOG | description:... | meal:Lunch | alcohol:None', protein: 28, fat: 12, enteredBy: 'Foodlog',
+  });
+  const carbs = await client.callTool({ name: 'get_carbs_history', arguments: {} });
+  assert.deepEqual(carbs.structuredContent.records, [{
+    created_at: fixtures['treatments.json'][1].created_at,
+    eventType: 'Meal Bolus', carbs: 12, notes: 'FOODLOG | description:fruit | meal:Lunch | alcohol:None',
+  }]);
   const before = seen.length;
   assert.equal((await client.callTool({ name: 'get_glucose_history', arguments: { limit: 100000 } })).isError, true);
   assert.equal((await client.callTool({ name: 'get_glucose_history', arguments: { start: '2020-01-01T00:00:00Z', end: '2026-01-01T00:00:00Z' } })).isError, true);

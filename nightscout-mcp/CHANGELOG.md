@@ -1,7 +1,8 @@
 # 0.1.8
 
-Remove temporary OAuth diagnostics while retaining the working browser OAuth
-flow and its security boundaries.
+Remove temporary OAuth diagnostics while retaining the working browser OAuth flow and its security boundaries.
+
+Preserve treatment notes, protein, fat and entered-by metadata for food and drink analysis, including Note treatments without carbs or insulin.
 
 # 0.1.7
 
