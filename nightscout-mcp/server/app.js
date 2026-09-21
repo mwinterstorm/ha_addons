@@ -24,12 +24,32 @@ export function createApp(config, { dataDir, fetcher } = {}) {
   });
   // Health reveals no configuration, connection state, or patient data.
   app.get('/health', (_req, res) => res.json({ status: 'ok' }));
-  app.use((req, res, next) => {
-    if (!config.allowed_hosts.includes(req.headers.host)) return res.status(403).json({ error: 'Host not allowed' });
-    const origin = req.headers.origin;
-    if (origin && origin !== config.public_url && !config.allowed_origins.includes(origin)) return res.status(403).json({ error: 'Origin not allowed' });
-    next();
-  });
+
+app.use((req, res, next) => {
+  if (!config.allowed_hosts.includes(req.headers.host)) {
+    return res.status(403).json({ error: 'Host not allowed' });
+  }
+
+  // OAuth authorization is a top-level browser navigation. Its Origin is not
+  // an authentication boundary; the OAuth provider validates the registered
+  // redirect URI, client, PKCE challenge, scope, resource, and state instead.
+  if (req.path === '/authorize' && req.method === 'GET') {
+    return next();
+  }
+
+  const origin = req.headers.origin;
+  if (
+    origin &&
+    origin !== config.public_url &&
+    !config.allowed_origins.includes(origin)
+  ) {
+    return res.status(403).json({ error: 'Origin not allowed' });
+  }
+
+  next();
+});
+
+
   app.use(budget(600, 60000));
   // Apply bounds before the SDK's own parsers; avoid recording any request bodies.
   app.use(express.json({ limit: '32kb' }));
