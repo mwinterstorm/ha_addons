@@ -159,6 +159,8 @@ Current OpenAI instructions place **Developer mode** under **Settings → Securi
 and login**, then let you add an MCP connection using the plus button in
 **ChatGPT Plugins**. Account/workspace policy may affect availability or labels.
 
+Create a new plugin at https://chatgpt.com (must use web version). Go to **Plugins** on left hand menu, click the **'+'** button and follow details below:
+
 1. Create a connection called **Nightscout (read-only)**.
 2. Enter `https://YOUR-ACTUAL-HOSTNAME/mcp`.
 3. Select **OAuth** and **dynamic client registration (DCR)** if asked. Leave
