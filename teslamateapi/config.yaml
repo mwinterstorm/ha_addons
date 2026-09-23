@@ -1,5 +1,5 @@
 name: TeslaMate API
-version: "0.1.1"
+version: "0.1.2"
 slug: teslamateapi
 description: REST API for data collected by a self-hosted TeslaMate server
 url: https://github.com/tobiasehlert/teslamateapi
@@ -18,11 +18,11 @@ options:
   database_host: database
   database_port: 5432
   database_user: teslamate
-  database_password: secret
+  database_password: ""
   database_name: teslamate
   database_ssl: disable
   database_timeout: 60000
-  encryption_key: "MySuperSecretEncryptionKey"
+  encryption_key: ""
   mqtt_host: mosquitto
   mqtt_port: 1883
   mqtt_username: ""

@@ -26,6 +26,11 @@ export COMMANDS_CLIMATE="$(bashio::config 'commands_climate')"
 export COMMANDS_DOORS="$(bashio::config 'commands_doors')"
 export COMMANDS_LOGGING="$(bashio::config 'commands_logging')"
 
+if [[ -z "${ENCRYPTION_KEY}" || "${ENCRYPTION_KEY}" == "MySuperSecretEncryptionKey" ]]; then
+  bashio::log.fatal 'Set encryption_key to the key used by TeslaMate.'
+  exit 1
+fi
+
 if [[ "${ENABLE_COMMANDS}" == "true" && ${#API_TOKEN} -lt 32 ]]; then
   bashio::log.fatal 'API token must contain at least 32 characters when commands are enabled.'
   exit 1
