@@ -4,7 +4,7 @@ FROM ghcr.io/tobiasehlert/teslamateapi:1.25.0@sha256:6f7eea55c6475c2bc4639ee582d
 FROM ghcr.io/home-assistant/${BUILD_ARCH}-base:3.20
 
 ARG BUILD_ARCH
-ARG BUILD_VERSION=0.1.2
+ARG BUILD_VERSION=0.1.3
 LABEL io.hass.type="addon" io.hass.arch="${BUILD_ARCH}" io.hass.version="${BUILD_VERSION}"
 
 RUN apk add --no-cache ca-certificates tzdata
@@ -14,5 +14,4 @@ COPY --from=upstream /opt/app/app /opt/app/app
 
 COPY rootfs/run.sh /run.sh
 RUN chmod 0755 /run.sh
-ENTRYPOINT ["/run.sh"]
-CMD []
+CMD ["/run.sh"]
