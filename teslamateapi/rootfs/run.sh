@@ -31,4 +31,4 @@ if [[ "${ENABLE_COMMANDS}" == "true" && ${#API_TOKEN} -lt 32 ]]; then
   exit 1
 fi
 
-exec /opt/app/teslamateapi
+exec /opt/app/app
