@@ -10,7 +10,7 @@ TeslaMate and its PostgreSQL database must already be running and reachable from
 
 1. Install TeslaMateApi from this add-on repository.
 2. Set the database host, port, database name, username, and password to match TeslaMate.
-3. Set `encryption_key` to the same encryption key TeslaMate uses.
+3. Set `encryption_key` to the same encryption key TeslaMate uses. The add-on will stop with a clear error if this is blank or left at the placeholder from version 0.1.0.
 4. Set the MQTT host and credentials to match the broker TeslaMate uses, or enable `disable_mqtt` if you do not want MQTT integration.
 5. Start the add-on and open its API on port 8080. The `api/healthz` endpoint can be used for a basic check.
 
