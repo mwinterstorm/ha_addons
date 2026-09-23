@@ -1,7 +1,7 @@
 # Build upstream source for both platforms; the upstream release image is not multi-arch.
 FROM python:3.11-slim-bookworm@sha256:528257d48c1da0dcecc2e725d1ae34498d60c965f1241e39cd6a85a8859bdf84
 ARG BUILD_ARCH
-ARG BUILD_VERSION=3.0.0-2
+ARG BUILD_VERSION=3.0.0-3
 LABEL io.hass.type="app" io.hass.arch="${BUILD_ARCH}" io.hass.version="${BUILD_VERSION}"
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 ADD https://codeload.github.com/jwoglom/tconnectsync/tar.gz/refs/tags/v3.0.0 /tmp/upstream.tar.gz

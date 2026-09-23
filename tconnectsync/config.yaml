@@ -1,5 +1,5 @@
-name: tconnectsync
-version: "3.0.0-2"
+name: nightscout tconnectsync
+version: "3.0.0-3"
 slug: tconnectsync
 description: Sync Tandem Source pump records to Nightscout
 url: https://github.com/jwoglom/tconnectsync

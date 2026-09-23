@@ -1,3 +1,7 @@
+# 3.0.0-3
+
+Rename to 'Nightscout tConnect'
+
 # 3.0.0-2
 
 Fix Nightscout history lookups for treatments, device status, glucose and activity.
