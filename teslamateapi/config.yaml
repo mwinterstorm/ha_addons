@@ -1,0 +1,66 @@
+name: TeslaMate API
+version: "0.1.0"
+slug: teslamateapi
+description: REST API for data collected by a self-hosted TeslaMate server
+url: https://github.com/tobiasehlert/teslamateapi
+arch: [amd64, aarch64]
+stage: experimental
+startup: application
+boot: auto
+init: false
+timeout: 30
+webui: http://[HOST]:[PORT:8080]
+ports:
+  8080/tcp: 8080
+ports_description:
+  8080/tcp: TeslaMate API (HTTP)
+options:
+  database_host: database
+  database_port: 5432
+  database_user: teslamate
+  database_password: secret
+  database_name: teslamate
+  database_ssl: disable
+  database_timeout: 60000
+  encryption_key: "MySuperSecretEncryptionKey"
+  mqtt_host: mosquitto
+  mqtt_port: 1883
+  mqtt_username: ""
+  mqtt_password: ""
+  mqtt_tls: false
+  mqtt_namespace: ""
+  disable_mqtt: false
+  timezone: Pacific/Auckland
+  api_token: ""
+  enable_commands: false
+  commands_all: false
+  commands_wake: false
+  commands_charging: false
+  commands_climate: false
+  commands_doors: false
+  commands_logging: false
+schema:
+  database_host: str
+  database_port: port
+  database_user: str
+  database_password: password
+  database_name: str
+  database_ssl: list(disable|require|verify-ca|verify-full)
+  database_timeout: int(1000,300000)
+  encryption_key: password
+  mqtt_host: str
+  mqtt_port: port
+  mqtt_username: str
+  mqtt_password: password
+  mqtt_tls: bool
+  mqtt_namespace: str
+  disable_mqtt: bool
+  timezone: str
+  api_token: password
+  enable_commands: bool
+  commands_all: bool
+  commands_wake: bool
+  commands_charging: bool
+  commands_climate: bool
+  commands_doors: bool
+  commands_logging: bool

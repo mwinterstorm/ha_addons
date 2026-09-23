@@ -47,3 +47,9 @@ No treatment writes, dosing actions or pump controls. Experimental pending live
 Home Assistant and ChatGPT validation.
 
 [Install and connect ChatGPT](nightscout-mcp/DOCS.md)
+
+### TeslaMate API
+
+Runs the upstream TeslaMateApi service for an existing TeslaMate database and MQTT broker.
+
+[Setup and configuration](teslamateapi/README.md)
